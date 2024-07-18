@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
@@ -17,9 +18,12 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+      <html lang="en">
+        <body className={inter.className}>
+          {children}
+          <SpeedInsights />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
