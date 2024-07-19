@@ -11,15 +11,15 @@ class Footer extends Component {
           <p className='text-black'>Copyright © {current_year}.All Rights Reserved.</p>
         </div>
         <div className='bg-white text-black py-4 text-center'>
-          <Link href="https://portal.termshub.io/6hht8qisyi/privacy_policy/" target="_blank" className='btn btn-link text-black mx-2'>
+          <Link href="https://portal.termshub.io/6qt0snfnjz/privacy_policy/" target="_blank" className='btn btn-link text-black mx-2'>
             Privacy Policy
           </Link>
           <span className='text-black mx-2'>|</span>
-          <Link href="https://portal.termshub.io/aicontentgenerator.in/website_tos/" target="_blank" className='btn btn-link text-black mx-2'>
+          <Link href="https://portal.termshub.io/d67etna5ft/website_tos/" target="_blank" className='btn btn-link text-black mx-2'>
             Terms and Conditions
           </Link>
           <span className='text-black mx-2'>|</span>
-          <Link href="https://portal.termshub.io/vie9bnquqh/refund_policy/" className='btn btn-link text-black mx-2'>
+          <Link href="https://portal.termshub.io/sgnrifzwga/refund_policy/" className='btn btn-link text-black mx-2'>
             Refund Policy
           </Link>
           <span className='text-black mx-2'>|</span>

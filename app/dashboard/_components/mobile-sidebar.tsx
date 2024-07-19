@@ -8,7 +8,7 @@ import SideNav from "./SideNav";
 const MobileSidebar = () => {
     return (
         <Sheet>
-            <SheetTrigger>
+            <SheetTrigger asChild>
                 <Button variant={"ghost"} className="md:hidden">
                     <Menu />
                 </Button>
