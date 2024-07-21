@@ -1,102 +1,115 @@
-"use client";
-import { TotalUsageContext } from '@/app/(context)/TotalUsageContext';
-import { UpdateCreditUsageContext } from '@/app/(context)/UpdateCreditUsageContext';
-import { UserSubscriptionContext } from '@/app/(context)/UserSubscriptionContext';
+"use client"
 import { Button } from '@/components/ui/button';
 import { db } from '@/utils/db';
 import { AIOutput, UserSubscription } from '@/utils/schema';
 import { useUser } from '@clerk/nextjs';
-import { differenceInDays, parseISO } from 'date-fns';
+
+import { TotalUsageContext } from '@/app/(context)/TotalUsageContext';
+import { UpdateCreditUsageContext } from '@/app/(context)/UpdateCreditUsageContext';
+import { UserSubscriptionContext } from '@/app/(context)/UserSubscriptionContext';
 import { eq } from 'drizzle-orm';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { HISTORY } from '../history/page';
+
+interface UserSubscriptionResult {
+  startDate?: string | Date;
+  // Add other fields that are in your UserSubscription table
+}
 
 function UsageTrack() {
   const { user } = useUser();
-  const { totalUsage, setTotalUsage } = useContext(TotalUsageContext);
+  const { totalUsage, setTotalUsage } = useContext(TotalUsageContext)
   const { userSubscription, setUserSubscription } = useContext(UserSubscriptionContext);
+  const [maxWords, setMaxWords] = useState(10000)
   const { updateCreditUsage, setUpdateCreditUsage } = useContext(UpdateCreditUsageContext);
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState<Date | null>(null);
 
   useEffect(() => {
-    if (user) {
-      GetData();
-      CheckSubscription();
-    }
+    user && GetData();
+    user && IsUserSubscribe();
   }, [user]);
 
   useEffect(() => {
-    if (user && updateCreditUsage) {
-      GetData();
-    }
-  }, [updateCreditUsage, user]);
+    user && GetData();
+  }, [updateCreditUsage && user]);
 
   const GetData = async () => {
-    const result = await db
-      .select()
-      .from(AIOutput)
-      .where(eq(AIOutput.createdBy, user?.primaryEmailAddress?.emailAddress ?? ''));
-    GetTotalUsage(result as HISTORY[]);
-  };
+    {/* @ts-ignore */ }
+    const result: HISTORY[] = await db.select().from(AIOutput).where(eq(AIOutput.createdBy, user?.primaryEmailAddress?.emailAddress));
 
-  const CheckSubscription = async () => {
-    const userEmail = user?.primaryEmailAddress?.emailAddress;
-    if (!userEmail) return;
+    GetTotalUsage(result)
+  }
 
-    const result = await db
-      .select()
-      .from(UserSubscription)
-      .where(eq(UserSubscription.email, userEmail));
-
-    if (result.length > 0) {
-      const subscriptionStartDate = parseISO(result[0].joinDate ?? '');
-      const daysSinceSubscription = differenceInDays(new Date(), subscriptionStartDate);
-  
-      if (daysSinceSubscription >= 30) {
-        // Switch to free plan
-        await db
-          .update(UserSubscription)
-          .set({ active: false })
-          .where(eq(UserSubscription.email, userEmail));
-        setUserSubscription(false);
-        alert("Your 30-day unlimited period has ended. Please upgrade to continue enjoying unlimited access.");
-      } else {
+  const IsUserSubscribe = async () => {
+    try {
+      {/* @ts-ignore */ }
+      const result: UserSubscriptionResult[] = await db.select().from(UserSubscription).where(eq(UserSubscription.email, user?.primaryEmailAddress?.emailAddress));
+      console.log(result)
+      if (result.length > 0) {
         setUserSubscription(true);
+        let startDate: Date;
+        if (result[0].startDate) {
+          startDate = result[0].startDate instanceof Date ? result[0].startDate : new Date(result[0].startDate);
+        } else {
+          startDate = new Date();
+        }
+        const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from start date
+        setSubscriptionEndDate(endDate);
       }
+    } catch (error) {
+      console.error("Error checking user subscription:", error);
+      // Handle the error appropriately
     }
-  };
+  }
 
   const GetTotalUsage = (result: HISTORY[]) => {
     let total: number = 0;
     result.forEach(element => {
-      total += Number(element.aiResponse?.length);
+      total = total + Number(element.aiResponse?.length)
     });
 
-    setTotalUsage(total);
+    setTotalUsage(total)
     console.log(total);
-  };
+  }
+
+  const isSubscriptionActive = () => {
+    return userSubscription && subscriptionEndDate && new Date() < subscriptionEndDate;
+  }
+
+  const getRemainingDays = () => {
+    if (subscriptionEndDate) {
+      const now = new Date();
+      const diffTime = subscriptionEndDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(diffDays, 0);
+    }
+    return 0;
+  }
 
   return (
     <div className='m-5'>
       <div className='bg-primary text-white p-3 rounded-lg'>
         <h2 className='font-medium'>Credits</h2>
         <div className='h-2 bg-[#9981f9] w-full rounded-full mt-3'>
-          <div
-            className='h-2 bg-white rounded-full'
+          <div className='h-2 bg-white rounded-full'
             style={{
-              width: userSubscription ? '100%' : (totalUsage / 10000) * 100 + '%'
+              width: totalUsage / maxWords > 1 ? '100%' : (totalUsage / maxWords) * 100 + '%'
             }}
           ></div>
         </div>
-        <h2 className='text-sm my-2'>{totalUsage} credit used</h2>
-        {userSubscription && <h2 className='text-sm'>Unlimited</h2>}
+        {isSubscriptionActive() ? (
+          <h2 className='text-sm my-2'>Unlimited credits: {totalUsage} words used</h2>
+        ) : (
+          <h2 className='text-sm my-2'>{totalUsage} / {maxWords} words used</h2>
+        )}
       </div>
-      {!userSubscription && (
-        <a href='/dashboard/billing'>
+      {!isSubscriptionActive() && (
+        <a href="/dashboard/billing">
           <Button variant={'secondary'} className='w-full my-3 text-primary'>Upgrade</Button>
         </a>
       )}
     </div>
-  );
+  )
 }
 
-export default UsageTrack;
+export default UsageTrack
