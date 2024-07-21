@@ -19,7 +19,7 @@ class Footer extends Component {
             Terms and Conditions
           </Link>
           <span className='text-black mx-2'>|</span>
-          <Link href="https://portal.termshub.io/sgnrifzwga/refund_policy/" className='btn btn-link text-black mx-2'>
+          <Link href="https://portal.termshub.io/vie9bnquqh/refund_policy/" className='btn btn-link text-black mx-2'>
             Refund Policy
           </Link>
           <span className='text-black mx-2'>|</span>
