@@ -92,7 +92,6 @@ function Billing() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-grow mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <h2 className='text-center font-bold text-3xl my-3'>Upgrade With Monthly Plan</h2>
-
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:gap-8">
           {!userSubscription && (
             <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
@@ -174,26 +173,24 @@ function Billing() {
                 <span className="text-gray-700"> Unlimated Download & Copy  </span>
               </li>
               <li className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 text-indigo-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 text-indigo-700">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
                 <span className="text-gray-700"> 1 Year of History </span>
               </li>
             </ul>
+
+            <Button
+              disabled={loading || !!userSubscription}
+              onClick={createSubscription}
+              className='w-full rounded-full mt-5 p-6'
+              variant='outline'
+            >
+              {loading && <Loader2Icon className='animate-spin mr-2' />}
+              {userSubscription ? 'Active Plan' : 'Get Started'}
+            </Button>
           </div>
         </div>
-
-        <Button
-          disabled={loading || !!userSubscription}
-          onClick={createSubscription}
-          className='w-full rounded-full mt-5 p-6'
-          variant='outline'
-        >
-          {loading && <Loader2Icon className='animate-spin mr-2' />}
-          {userSubscription ? 'Active Plan' : 'Get Started'}
-        </Button>
-
-        {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>
       <Footer />
     </div>
