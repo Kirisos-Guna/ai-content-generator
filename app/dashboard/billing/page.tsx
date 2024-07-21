@@ -4,67 +4,92 @@ import { Button } from '@/components/ui/button';
 import { db } from '@/utils/db';
 import { UserSubscription } from '@/utils/schema';
 import { useUser } from '@clerk/nextjs';
-import axio from 'axios';
+import axios from 'axios';
 import { Loader2Icon } from 'lucide-react';
 import moment from 'moment';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Footer from '../_components/Footer';
 
 function Billing() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { user } = useUser();
   const { userSubscription, setUserSubscription } = useContext(UserSubscriptionContext);
 
-  const createSubscription = () => {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const createSubscription = async () => {
     setLoading(true);
-    axio.post('/api/create-subscription', {})
-      .then(resp => {
-        console.log(resp.data);
-        onPayment(resp.data.id);
-      })
-      .catch(error => {
-        setLoading(false);
-      });
+    setError('');
+    try {
+      const resp = await axios.post('/api/create-subscription', {});
+      console.log(resp.data);
+      await onPayment(resp.data.id);
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      setError('Failed to create subscription. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onPayment = (subId: string) => {
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      subscription_id: subId,
-      name: 'AI Content Generator',
-      description: 'Monthly Subscription',
-      handler: async (resp: { razorpay_payment_id?: string }) => {
-        console.log(resp);
-        if (resp.razorpay_payment_id) {
-          saveSubscription(resp.razorpay_payment_id);
-        }
-        setLoading(false);
-      }
-    };
+    return new Promise((resolve, reject) => {
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        subscription_id: subId,
+        name: 'AI Content Generator',
+        description: 'Monthly Subscription',
+        handler: async (resp: { razorpay_payment_id?: string }) => {
+          console.log(resp);
+          if (resp.razorpay_payment_id) {
+            await saveSubscription(resp.razorpay_payment_id);
+          }
+          resolve(resp);
+        },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            reject(new Error('Payment cancelled'));
+          },
+        },
+      };
 
-    // @ts-ignore 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    });
   };
 
   const saveSubscription = async (paymentId: string) => {
-    const result = await db.insert(UserSubscription)
-      .values({
-        email: user?.primaryEmailAddress?.emailAddress,
-        userName: user?.fullName,
-        active: true,
-        paymentId: paymentId,
-        joinDate: moment().format('DD/MM/yyyy')
-      });
-    console.log(result);
-    if (result) {
-      window.location.reload();
+    try {
+      const result = await db.insert(UserSubscription)
+        .values({
+          email: user?.primaryEmailAddress?.emailAddress,
+          userName: user?.fullName,
+          active: true,
+          paymentId: paymentId,
+          joinDate: moment().format('DD/MM/yyyy')
+        });
+      console.log(result);
+      if (result) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error saving subscription:', error);
+      setError('Failed to save subscription. Please contact support.');
     }
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       <div className="flex-grow mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <h2 className='text-center font-bold text-3xl my-3'>Upgrade With Monthly Plan</h2>
 
@@ -149,24 +174,26 @@ function Billing() {
                 <span className="text-gray-700"> Unlimated Download & Copy  </span>
               </li>
               <li className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 text-indigo-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 text-indigo-700">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
                 <span className="text-gray-700"> 1 Year of History </span>
               </li>
             </ul>
-
-            <Button
-              disabled={loading}
-              onClick={() => createSubscription()}
-              className='w-full rounded-full mt-5 p-6'
-              variant='outline'
-            >
-              {loading && <Loader2Icon className='animate-spin' />}
-              {userSubscription ? 'Active Plan' : 'Get Started'}
-            </Button>
           </div>
         </div>
+
+        <Button
+          disabled={loading || !!userSubscription}
+          onClick={createSubscription}
+          className='w-full rounded-full mt-5 p-6'
+          variant='outline'
+        >
+          {loading && <Loader2Icon className='animate-spin mr-2' />}
+          {userSubscription ? 'Active Plan' : 'Get Started'}
+        </Button>
+
+        {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>
       <Footer />
     </div>
