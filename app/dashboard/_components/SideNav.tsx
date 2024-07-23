@@ -39,8 +39,8 @@ function SideNav() {
 
     return (
         <div className='h-screen relative p-5 shadow-sm border bg-white'>
-            <div className='flex justify-center'>
-                <Image src={'/logo.svg'} alt='logo' width={120} height={100} />
+            <div className='flex justify-center bg-black w-full '>
+                <Image src={'/logo.png'} alt='logo' width={80} height={100} />
             </div>
             <hr className='my-6 border' />
             <div className='mt-3'>
