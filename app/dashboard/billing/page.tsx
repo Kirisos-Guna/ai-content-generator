@@ -91,7 +91,7 @@ function Billing() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-grow mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <h2 className='text-center font-bold text-3xl my-3'>Upgrade With Monthly Plan</h2>
+        <h2 className='text-center font-bold text-3xl my-3'>Upgrade With Pro Plan</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:gap-8">
           {!userSubscription && (
             <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
@@ -145,7 +145,7 @@ function Billing() {
           <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
             <div className="text-center">
               <h2 className="text-lg font-medium text-gray-900">
-                Monthly
+                Pro
                 <span className="sr-only">Plan</span>
               </h2>
               <p className="mt-2 sm:mt-4">
@@ -177,6 +177,12 @@ function Billing() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
                 <span className="text-gray-700"> 1 Year of History </span>
+              </li>
+              <li className="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 text-indigo-700">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span className="text-gray-700"> Priority Support</span>
               </li>
             </ul>
 

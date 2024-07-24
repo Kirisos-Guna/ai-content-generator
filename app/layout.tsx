@@ -1,10 +1,10 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import clsx from "clsx";
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Outfit({ subsets: ["latin"] });
+const dmSans = DM_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "AI Content Generator",
@@ -18,12 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={inter.className}>
-          {children}
-          <SpeedInsights />
-        </body>
-      </html>
+    <html lang="en">
+    <body className={clsx(dmSans.className, "antialiased bg-[#EAEEFE]")}>
+        {children}
+      </body>
+    </html>
     </ClerkProvider>
   );
 }
