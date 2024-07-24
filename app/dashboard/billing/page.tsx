@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { db } from '@/utils/db';
 import { UserSubscription } from '@/utils/schema';
 import { useUser } from '@clerk/nextjs';
+import { Analytics } from "@vercel/analytics/react";
 import axios from 'axios';
 import { Loader2Icon } from 'lucide-react';
 import moment from 'moment';
 import { useContext, useEffect, useState } from 'react';
 import Footer from '../_components/Footer';
+
 
 function Billing() {
   const [loading, setLoading] = useState(false);
@@ -199,6 +201,7 @@ function Billing() {
         </div>
       </div>
       <Footer />
+      <Analytics />
     </div>
   );
 }

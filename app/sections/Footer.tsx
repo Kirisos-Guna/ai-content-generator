@@ -5,6 +5,8 @@ import SocialYoutube from '@/app/assets/social-youtube.svg';
 import Image from 'next/image';
 
 export const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-black text-[#BCBCBC] text-sm py-10 text-center">
       <div className="container">
@@ -12,10 +14,10 @@ export const Footer = () => {
           <Image src={logo} alt="Logo" height={40} className="relative" />
         </div>
         <nav className="flex flex-col md:flex-row md:justify-center gap-6 mt-6">
-          <a href='#'>About</a>
-          <a href='#'>Features</a>
-          <a href='#'>Pricing</a>
-          <a href='#'>Contact</a>
+          <a href="https://portal.termshub.io/6qt0snfnjz/privacy_policy/">Privacy Policy</a>
+          <a href="https://portal.termshub.io/d67etna5ft/website_tos/">Terms and Conditions</a>
+          <a href="https://portal.termshub.io/vie9bnquqh/refund_policy/">Refund Policy</a>
+          <a href="/dashboard/contact">Contact Us</a>
         </nav>
         <div className="flex justify-center gap-6 mt-6">
           <SocialX />
@@ -23,7 +25,7 @@ export const Footer = () => {
           <SocialYoutube />
         </div>
         <p className="mt-6">
-          &copy; 2024 AI Content Generator.All rights reserved.
+          &copy; {currentYear} AI Content Generator. All rights reserved.
         </p>
       </div>
     </footer>
