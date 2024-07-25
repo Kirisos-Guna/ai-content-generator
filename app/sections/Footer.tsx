@@ -20,12 +20,12 @@ export const Footer = () => {
           <a href="/dashboard/contact">Contact Us</a>
         </nav>
         <div className="flex justify-center gap-6 mt-6">
-          <SocialX />
-          <SocialInsta />
-          <SocialYoutube />
+          <a href="https://x.com/kirisosguna"><SocialX /></a>
+          <a href="https://www.instagram.com/generatoraicontent?igsh=MTFrbDcyOTRjcW9uMQ=="><SocialInsta /></a>
+          <a href="https://youtube.com/@mguna-fq6xm?si=B9AsLBNTiP_ztLoR"><SocialYoutube /></a>
         </div>
         <p className="mt-6">
-          &copy; {currentYear} AI Content Generator. All rights reserved.
+          © {currentYear} AI Content Generator. All rights reserved.
         </p>
       </div>
     </footer>
